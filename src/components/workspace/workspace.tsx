@@ -61,7 +61,7 @@ export function Workspace() {
   }
 
   return (
-    <div className="flex min-h-[720px] w-full overflow-hidden rounded-[30px] border border-slate-200/90 bg-white/95 shadow-shell backdrop-blur">
+    <div className="flex min-h-screen w-full overflow-hidden bg-white">
       <WorkspaceSidebar panels={panels} onToggle={handleToggle} />
 
       <div className="flex min-w-0 flex-1 flex-col bg-white">
