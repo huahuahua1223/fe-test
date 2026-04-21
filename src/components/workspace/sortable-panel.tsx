@@ -1,8 +1,17 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { type PanelConfig, type PanelId } from "@/lib/panels";
+import {
+  getPanelCloseTestId,
+  getPanelDragHandleTestId,
+  getPanelRootTestId,
+} from "@/lib/panel-test-ids";
+import { panelRegistry, type PanelConfig, type PanelId } from "@/lib/panels";
 import { cn } from "@/lib/utils";
-import { PanelShell } from "./panel-shell";
+import {
+  PanelShell,
+  panelSectionClassName,
+  panelTitleClassName,
+} from "./panel-shell";
 
 type SortablePanelProps = {
   panel: PanelConfig;
@@ -10,6 +19,7 @@ type SortablePanelProps = {
 };
 
 export function SortablePanel({ panel, onClose }: SortablePanelProps) {
+  const metadata = panelRegistry[panel.id];
   const { attributes, listeners, isDragging, setNodeRef, transform, transition } =
     useSortable({
       id: panel.id,
@@ -27,16 +37,32 @@ export function SortablePanel({ panel, onClose }: SortablePanelProps) {
   return (
     <section
       ref={setNodeRef}
+      data-testid={getPanelRootTestId(panel.id)}
+      data-panel-id={panel.id}
       style={style}
       className={cn(
-        "flex h-full min-w-[22rem] grow basis-0 flex-col border-l border-slate-200 bg-white",
+        panelSectionClassName,
         isDragging && "z-10 shadow-2xl shadow-slate-200/90",
       )}
     >
       <PanelShell
+        closeButtonTestId={getPanelCloseTestId(panel.id)}
         panel={panel}
-        isDragging={isDragging}
-        dragHandleProps={{ ...attributes, ...listeners }}
+        titleSlot={
+          <button
+            type="button"
+            data-testid={getPanelDragHandleTestId(panel.id)}
+            aria-label={`Drag to reorder ${metadata.title} panel`}
+            className={cn(
+              panelTitleClassName,
+              isDragging ? "cursor-grabbing" : "cursor-grab hover:bg-slate-100",
+            )}
+            {...attributes}
+            {...listeners}
+          >
+            <span>{metadata.title}</span>
+          </button>
+        }
         onClose={onClose}
       />
     </section>

@@ -14,7 +14,14 @@ import {
 } from "@dnd-kit/sortable";
 import { restrictToHorizontalAxis } from "@dnd-kit/modifiers";
 import { useEffect, useState } from "react";
-import { createInitialPanels, reorderVisiblePanels, togglePanel, closePanel } from "@/lib/panels";
+import { workspaceTestIds } from "@/lib/panel-test-ids";
+import {
+  closePanel,
+  createInitialPanels,
+  reorderVisiblePanels,
+  togglePanel,
+  type PanelId,
+} from "@/lib/panels";
 import { EmptyState } from "./empty-state";
 import { SortablePanel } from "./sortable-panel";
 import { StaticPanel } from "./static-panel";
@@ -31,16 +38,17 @@ export function Workspace() {
     }),
   );
   const visiblePanels = panels.filter((panel) => panel.isOpen);
+  const PanelComponent = isHydrated ? SortablePanel : StaticPanel;
 
   useEffect(() => {
     setIsHydrated(true);
   }, []);
 
-  function handleToggle(panelId: Parameters<typeof togglePanel>[1]) {
+  function handleToggle(panelId: PanelId) {
     setPanels((currentPanels) => togglePanel(currentPanels, panelId));
   }
 
-  function handleClose(panelId: Parameters<typeof closePanel>[1]) {
+  function handleClose(panelId: PanelId) {
     setPanels((currentPanels) => closePanel(currentPanels, panelId));
   }
 
@@ -61,7 +69,10 @@ export function Workspace() {
   }
 
   return (
-    <div className="flex min-h-screen w-full overflow-hidden bg-white">
+    <div
+      data-testid={workspaceTestIds.root}
+      className="flex min-h-screen w-full overflow-hidden bg-white"
+    >
       <WorkspaceSidebar panels={panels} onToggle={handleToggle} />
 
       <div className="flex min-w-0 flex-1 flex-col bg-white">
@@ -73,14 +84,20 @@ export function Workspace() {
               modifiers={[restrictToHorizontalAxis]}
               onDragEnd={handleDragEnd}
             >
-              <div className="h-full overflow-x-auto overflow-y-hidden">
+              <div
+                data-testid={workspaceTestIds.panelsViewport}
+                className="h-full overflow-x-auto overflow-y-hidden"
+              >
                 <SortableContext
                   items={visiblePanels.map((panel) => panel.id)}
                   strategy={horizontalListSortingStrategy}
                 >
-                  <div className="flex h-full min-w-full">
+                  <div
+                    data-testid={workspaceTestIds.panelsTrack}
+                    className="flex h-full min-w-full"
+                  >
                     {visiblePanels.map((panel) => (
-                      <SortablePanel
+                      <PanelComponent
                         key={panel.id}
                         panel={panel}
                         onClose={handleClose}
@@ -91,10 +108,16 @@ export function Workspace() {
               </div>
             </DndContext>
           ) : (
-            <div className="h-full overflow-x-auto overflow-y-hidden">
-              <div className="flex h-full min-w-full">
+            <div
+              data-testid={workspaceTestIds.panelsViewport}
+              className="h-full overflow-x-auto overflow-y-hidden"
+            >
+              <div
+                data-testid={workspaceTestIds.panelsTrack}
+                className="flex h-full min-w-full"
+              >
                 {visiblePanels.map((panel) => (
-                  <StaticPanel
+                  <PanelComponent
                     key={panel.id}
                     panel={panel}
                     onClose={handleClose}

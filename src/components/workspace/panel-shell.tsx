@@ -1,19 +1,24 @@
-import type { ComponentProps } from "react";
+import type { ReactNode } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { panelRegistry, type PanelConfig, type PanelId } from "@/lib/panels";
-import { cn } from "@/lib/utils";
+
+export const panelSectionClassName =
+  "flex h-full min-w-[22rem] grow basis-0 flex-col border-l border-slate-200 bg-white";
+
+export const panelTitleClassName =
+  "flex min-w-0 flex-1 items-center justify-center rounded-full px-3 py-1 text-[15px] font-medium text-slate-700 transition";
 
 type PanelShellProps = {
+  closeButtonTestId: string;
   panel: PanelConfig;
-  isDragging?: boolean;
-  dragHandleProps?: ComponentProps<"button">;
+  titleSlot: ReactNode;
   onClose: (panelId: PanelId) => void;
 };
 
 export function PanelShell({
+  closeButtonTestId,
   panel,
-  isDragging = false,
-  dragHandleProps,
+  titleSlot,
   onClose,
 }: PanelShellProps) {
   const metadata = panelRegistry[panel.id];
@@ -21,27 +26,10 @@ export function PanelShell({
   return (
     <>
       <header className="flex h-12 items-center gap-2 border-b border-slate-200 bg-slate-50/90 pl-3 pr-2">
+        {titleSlot}
         <button
           type="button"
-          className={cn(
-            "flex min-w-0 flex-1 items-center justify-center rounded-full px-3 py-1 text-[15px] font-medium text-slate-700 transition",
-            dragHandleProps
-              ? isDragging
-                ? "cursor-grabbing"
-                : "cursor-grab hover:bg-slate-100"
-              : "cursor-default",
-          )}
-          aria-label={
-            dragHandleProps
-              ? `Drag to reorder ${metadata.title} panel`
-              : `${metadata.title} panel`
-          }
-          {...dragHandleProps}
-        >
-          <span>{metadata.title}</span>
-        </button>
-        <button
-          type="button"
+          data-testid={closeButtonTestId}
           aria-label={`Close ${metadata.title} panel`}
           onClick={() => onClose(panel.id)}
           className="rounded-full p-1 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700"

@@ -23,6 +23,7 @@
 - `dnd-kit`
 - `Heroicons`
 - `Vitest`
+- `Playwright`
 
 ## 本地启动
 
@@ -37,9 +38,13 @@ pnpm dev
 
 ```bash
 pnpm lint
+pnpm typecheck
 pnpm test
+pnpm test:e2e
 pnpm build
 ```
+
+`pnpm test:e2e` 默认使用本机已安装的 Microsoft Edge；如需改用其他 Playwright channel，可设置 `PLAYWRIGHT_CHANNEL` 环境变量。
 
 ## 目录结构
 
@@ -51,13 +56,19 @@ src/
     globals.css
   components/workspace/
     empty-state.tsx
+    panel-shell.tsx
     sortable-panel.tsx
+    static-panel.tsx
     workspace-sidebar.tsx
     workspace.tsx
   lib/
+    panel-test-ids.ts
     panels.ts
     panels.test.ts
     utils.ts
+e2e/
+  workspace.spec.ts
+playwright.config.ts
 ```
 
 ## 实现说明
@@ -65,8 +76,15 @@ src/
 - 使用单一 `PanelConfig[]` 作为唯一状态源，同时驱动左侧导航顺序、右侧面板顺序和开关状态
 - 关闭面板时仅切换 `isOpen`，不丢失当前排序位置
 - 拖拽时只对当前可见面板进行排序，隐藏面板保留原有插槽位置
+- hydration 兜底分支与 hydrated 拖拽分支拆分了标题语义：首屏静态标题不再复用按钮语义，拖拽按钮只在 DnD 分支渲染
+- 通过稳定的 `data-testid` 为关键交互补了 Playwright smoke test，覆盖关闭、恢复、排序和 hydration 回归
 - 页面样式贴近题图，保持浅色留白和清晰分栏
 
 ## 部署
 
 项目可直接部署到 Vercel 等支持 Next.js 的平台。
+
+## 开发说明
+
+- 仓库保持编辑器无关，`.vscode/` 不纳入版本管理。
+- 如果 VS Code 偶发 TypeScript 假红线，优先切换到 workspace TypeScript 版本并重启 TS Server。

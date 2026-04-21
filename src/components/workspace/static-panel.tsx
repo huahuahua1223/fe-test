@@ -1,5 +1,14 @@
-import { type PanelConfig, type PanelId } from "@/lib/panels";
-import { PanelShell } from "./panel-shell";
+import {
+  getPanelCloseTestId,
+  getPanelRootTestId,
+  getPanelTitleTestId,
+} from "@/lib/panel-test-ids";
+import { panelRegistry, type PanelConfig, type PanelId } from "@/lib/panels";
+import {
+  PanelShell,
+  panelSectionClassName,
+  panelTitleClassName,
+} from "./panel-shell";
 
 type StaticPanelProps = {
   panel: PanelConfig;
@@ -7,9 +16,27 @@ type StaticPanelProps = {
 };
 
 export function StaticPanel({ panel, onClose }: StaticPanelProps) {
+  const metadata = panelRegistry[panel.id];
+
   return (
-    <section className="flex h-full min-w-[22rem] grow basis-0 flex-col border-l border-slate-200 bg-white">
-      <PanelShell panel={panel} onClose={onClose} />
+    <section
+      data-testid={getPanelRootTestId(panel.id)}
+      data-panel-id={panel.id}
+      className={panelSectionClassName}
+    >
+      <PanelShell
+        closeButtonTestId={getPanelCloseTestId(panel.id)}
+        panel={panel}
+        titleSlot={
+          <div
+            data-testid={getPanelTitleTestId(panel.id)}
+            className={panelTitleClassName}
+          >
+            <span>{metadata.title}</span>
+          </div>
+        }
+        onClose={onClose}
+      />
     </section>
   );
 }

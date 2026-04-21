@@ -1,3 +1,4 @@
+import { getSidebarToggleTestId } from "@/lib/panel-test-ids";
 import { panelRegistry, type PanelConfig, type PanelId } from "@/lib/panels";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +23,8 @@ export function WorkspaceSidebar({
               <li key={panel.id}>
                 <button
                   type="button"
+                  data-testid={getSidebarToggleTestId(panel.id)}
+                  data-panel-id={panel.id}
                   onClick={() => onToggle(panel.id)}
                   aria-pressed={panel.isOpen}
                   className={cn(
